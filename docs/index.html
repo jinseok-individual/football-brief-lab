@@ -1,12 +1,30 @@
 <!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>국내외 축구 이슈 브리핑 — 주경야독 2026</title>
-</head>
-<body>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>국내외 축구 이슈 브리핑 v0.1.1</title>
+<style>body{font-family:'Malgun Gothic',sans-serif;max-width:900px;margin:24px auto;padding:0 12px;color:#222}small{color:#666}button{padding:6px 14px;margin-right:6px;border:1px solid #bbb;background:#fff;border-radius:6px;cursor:pointer}button.on{background:#e8f5e9;font-weight:700;border-color:#2e7d32}.card{border:1px solid #ddd;border-radius:8px;padding:10px 12px;margin:8px 0}.tag{font-size:12px;padding:2px 8px;border-radius:10px;background:#eef;margin-right:6px}.kr{background:#fde8e8}.gl{background:#e8f0fe}</style></head><body>
 <h1>국내외 축구 이슈 브리핑</h1>
-<p>국내외 축구 헤드라인을 한 화면에서 보는 개인 학습 사이트 · 합성/공개 데이터 사용 · 개인 학습 프로젝트</p>
-</body>
-</html>
+<p><small>v0.1.1 · 개인 학습 프로젝트 · <b>모든 기사 제목은 지어낸 예시(합성 데이터)</b>이며 실제 구단·선수·언론사와 관련이 없습니다. 기준일: 2026-11-15</small></p>
+<div><button id="b-all" class="on" onclick="setF('all')">전체</button><button id="b-kr" onclick="setF('kr')">국내</button><button id="b-gl" onclick="setF('gl')">해외</button> <small id="cnt"></small></div>
+<div id="list"></div>
+<script>
+const DATA=[
+["kr","리그","서울 블루 FC, 홈 개막전서 2-1 역전승","2026-11-14"],
+["kr","리그","부산 마린스, 3경기 연속 무실점 수비 호평","2026-11-14"],
+["kr","대표팀","국가대표팀 11월 A매치 소집 명단 발표(예시)","2026-11-13"],
+["kr","이적","대전 그린 유나이티드, 신인 공격수 영입 발표","2026-11-12"],
+["kr","리그","광주 선라이즈, 승점 3점 추가로 상위권 도약","2026-11-12"],
+["gl","리그","노스브리지 유나이티드, 선두 탈환 이끈 후반 결승골","2026-11-14"],
+["gl","대회","콘티넨탈컵 조별리그 4차전 결과 정리(예시)","2026-11-13"],
+["gl","이적","리오 마르 CF, 중원 보강 위해 이적 시장 관심","2026-11-13"],
+["gl","리그","사쿠라 도쿄, 3연승으로 순위 상승","2026-11-12"],
+["gl","부상","에스트렐라 SC 주전 수비수 2주 결장 전망","2026-11-11"]
+];
+let F='all';
+function setF(f){F=f;['all','kr','gl'].forEach(k=>document.getElementById('b-'+k).className=(k===f?'on':''));render()}
+function render(){
+ const rows=DATA.filter(d=>F==='all'||d[0]===F);
+ document.getElementById('cnt').textContent=rows.length+'건 · 읽는 시간 약 '+Math.max(1,Math.round(rows.length*0.5))+'분';
+ document.getElementById('list').innerHTML=rows.map(d=>'<div class="card"><span class="tag '+d[0]+'">'+(d[0]==='kr'?'국내':'해외')+'</span><span class="tag">'+d[1]+'</span><b>'+d[2]+'</b><br><small>'+d[3]+' · 합성 데이터</small></div>').join('');
+}
+render();
+</script></body></html>
