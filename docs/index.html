@@ -1,20 +1,109 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>국내외 축구 이슈 브리핑 v0.1.2</title>
-<style>body{font-family:'Malgun Gothic',sans-serif;max-width:900px;margin:24px auto;padding:0 12px;color:#222}small{color:#666}button{padding:6px 14px;margin-right:6px;border:1px solid #bbb;background:#fff;border-radius:6px;cursor:pointer}button.on{background:#e8f5e9;font-weight:700;border-color:#2e7d32}.card{border:1px solid #ddd;border-radius:8px;padding:10px 12px;margin:8px 0}.tag{font-size:12px;padding:2px 8px;border-radius:10px;margin-right:6px}.kr{background:#fde8e8}.gl{background:#e8f0fe}a{color:#111;font-weight:700;text-decoration:none}a:hover{text-decoration:underline}</style></head><body>
+<title>국내외 축구 이슈 브리핑 v0.2.0</title>
+<style>
+body{font-family:'Malgun Gothic',sans-serif;max-width:920px;margin:24px auto;padding:0 12px;color:#222}
+small{color:#666}
+button{padding:6px 14px;margin-right:6px;border:1px solid #bbb;background:#fff;border-radius:6px;cursor:pointer}
+button.on{background:#e8f5e9;font-weight:700;border-color:#2e7d32}
+.card{border:1px solid #ddd;border-radius:8px;padding:10px 12px;margin:8px 0}
+.tag{font-size:12px;padding:2px 8px;border-radius:10px;margin-right:6px}
+.kr{background:#fde8e8}.gl{background:#e8f0fe}.sy{background:#fff3cd}
+a{color:#111;font-weight:700;text-decoration:none}a:hover{text-decoration:underline}
+#sum{font-size:18px;font-weight:700;margin:12px 0;padding:10px 12px;background:#f4f6f8;border-radius:8px}
+details{margin:8px 0;border:1px solid #eee;border-radius:8px;padding:6px 10px}
+summary{cursor:pointer;font-weight:700}
+li{margin:3px 0;font-size:14px}
+.ok{color:#2e7d32;font-weight:700}.ng{color:#c0392b;font-weight:700}
+</style></head><body>
 <h1>국내외 축구 이슈 브리핑</h1>
-<p><small>v0.1.2 · 개인 학습 프로젝트 · 실제 공개 기사의 <b>제목과 원문 링크만</b> 모았습니다(본문은 복사하지 않음). 기사의 저작권은 각 언론사에 있습니다. 출처: Google News 피드(검색어: 축구 K리그, 축구 대표팀, football premier league)와 BBC Sport 피드 · 기사별 언론사는 카드에 표시 · 학습용 비상업 사이트 · 기준일: 2026-11-15 · 수집은 아직 수동(자동 갱신은 Sprint 3 예정)</small></p>
-<div><button id="b-all" class="on" onclick="setF('all')">전체</button><button id="b-kr" onclick="setF('kr')">국내</button><button id="b-gl" onclick="setF('gl')">해외</button> <small id="cnt"></small></div>
+<p><small>v0.2.0 · 개인 학습 프로젝트 · 데이터는 docs/data/articles.csv에서 읽고, docs/data/RULES.md의 규칙대로 거릅니다. 실제 기사는 BBC Sport 피드의 <b>제목과 원문 링크만</b> 사용했습니다(본문 복사 없음, 출처 BBC, BBC 로고 미사용). 기사의 저작권은 각 언론사에 있습니다. 합성 표시가 붙은 항목은 지어낸 문제 데이터입니다.</small></p>
+<div id="sum">불러오는 중…</div>
+<details id="exd"><summary id="exs">제외된 항목</summary><ul id="exl"></ul></details>
+<details id="dpd"><summary id="dps">중복된 항목</summary><ul id="dpl"></ul></details>
+<div style="margin:12px 0"><button id="b-all" class="on" onclick="setF('all')">전체</button><button id="b-kr" onclick="setF('kr')">국내</button><button id="b-gl" onclick="setF('gl')">해외</button> <small id="cnt"></small></div>
 <div id="list"></div>
+<h3>나가는 길 · 다시 들어오는 길</h3>
+<p><button onclick="downloadCsv()">보이는 결과 CSV 내려받기</button> <label>내려받은 파일 다시 불러와 확인: <input type="file" id="re" accept=".csv,text/csv"></label></p>
+<p id="rechk"><small>파일은 이 브라우저 안에서만 읽고 어디로도 보내지 않습니다.</small></p>
 <script>
-const DATA=[["kr","아시아투데이","‘손’ 부진에 흔들린 한국 축구…카타르전서 자존심 회복","2026-11-15","https://news.google.com/rss/articles/CBMibkFVX3lxTE1FQ2hSNkJRaFh3U3djMFJySElOcFp0VFlNTlplcUtqV1RUZ0RSSl9iMkc3OHVIZTE5ckxTdlNqRVNXTV83S2hlNDQ1VG5uc3IyNFMyVEFLMTBaTUFCYnV3eDM1czA2VGdDM1NMeW93?oc=5"],["kr","동아일보","황인범 “대표팀 안 아끼는 선수로 비쳐 속상…사실 왜곡돼”","2026-11-15","https://news.google.com/rss/articles/CBMidEFVX3lxTFA2c1hDZ2RkWmxMY05VN29ydzI2aTNXVnVRVms4Y1o2enhKX2RaUGYwR1A3Mm1XVE1qemJHOUZ4Y09JSC1FTFlXNzNyazVjMVBTTVZORlVqSTl5a0xpTUFMRmJSckZzSmcxUVU2U1lRREVlUmpT0gFmQVVfeXFMTTk1WDFOQkw4N204MFpsQXFmVFlxekJUM0U4Y3dOYXBrTFhYSDFnb0lHQ2VjUFNsck1sMFVsSUN3bHJyVEJ4TXd1SzA4dUlCWExBUjJ3dVplVjVvYnRabS1oaGNOVk13?oc=5"],["kr","스포츠월드","브라질 이기는 일본 축구, 사우디에 무너진 한국 축구… 모레노 감독과의 이별 다가온다","2026-11-15","https://news.google.com/rss/articles/CBMiYkFVX3lxTE1rb2k3V3RhTTFGa0pMVnlnMXBfcFlhd2xvTmxPOXZPZzNYLXc0ZGYyVXVhMUJWTkwzWm9tSHQwNjExVlpQMlFoYWkzOHVFSDBzSEtvWHBDczVzWHNHM3J6d2Rn?oc=5"],["kr","스포츠조선","로베르토 모레노 임시 감독, 끝내 '선수 탓'…\"대표팀 레벨서 나와선 안 될 실수\"→\"선수들 혼란스러워했다\" 충격","2026-11-15","https://news.google.com/rss/articles/CBMifkFVX3lxTFAza2c2UUJKNjkxbXhnVkgwUWlIbV9hNmZlY0d6NUh4QVp6VkJqR1ZublU0V2FfM2I2dEN2SmdZeGp3YTM1cEdhcmhpZjZmdlVsUGl4QW1CQ1BnbERQNFk4eUV3bWdfRnhhWXg4RlozXzcwdGdpcklQR1JUNzBudw?oc=5"],["kr","한국일보","'슈퍼스타' 호날두·메시 떠나니...포르투갈·아르헨티나, 나란히 패배","2026-11-15","https://news.google.com/rss/articles/CBMibkFVX3lxTE8wUkhXeno3Wi1pVWNTSkpBUXJHYzdmWENrR2N3X3VFbG5vXzlsX05EamFaMlVoWEtMVFdQTnBqYURUb3N5Mi1BcEwtckxJX04tSXJGVVRlVTZTdm9USDVtSmdMSDZ1b2VjMS1pemtR0gFzQVVfeXFMTW9wTjZqVG1nT0twUVdPUGI5UzNlUllOZHNhUXJfN1dwV0Q4UF9mSmcyNWExXzZTUlRsaHFqdHd1dmFRWUplUndoMXRoaFRWaFI0cW0xa0NEaVJtek16VmN3LUplZnhHa0VQY3ltYm1kY2tiNA?oc=5"],["kr","서울경제","“김기동 나가!” 야유가 ‘김기동 매직’으로…“‘우승감독’ 듣기 좋지만 亞무대 정복 남았죠”","2026-11-15","https://news.google.com/rss/articles/CBMiUkFVX3lxTE8zbW9wUklBRzA1OFByUGtOQlBOYkU5UzZ5dGw1SFFQZnlEMDJWMEEwWHVOOTVNem5FZUgtSTVQWllYdzVWMGdPb283bnoxRVBRSUHSAVNBVV95cUxNeU00cUJIWWlXNDVZekFPQkxnOUVTdUVGU1Z3U2lpQ0NCQ0dadHFtd3BkVm8yYTVPaW81dGRta2wwRUtqWEx5ZDNSMkU1cExGdjRpQQ?oc=5"],["kr","스포츠경향","오현규·오세훈, 골만으로 가릴 수 없는 대표팀의 ‘9번’ 경쟁","2026-11-15","https://news.google.com/rss/articles/CBMiXkFVX3lxTE1ldkhmamtncWt0eENubVU1bE05dVpNay10WUNPS0tNNUtSeVhibl9NWDJkYmtaRUh2a2o5aHV5bjdGTlZsbEhTTzhpY3ZTOEs1bkNNeDR2Mk43TUFtdFHSAWNBVV95cUxQLWc0bjBDV3hELTlCNU43VERKU1RoN25VVUM3d1VMaW1RM08yYW8yR2Zob0tsNDA0NE54WU5zbk9iUW9idTFMRzRtdWNVZ0ZEdmpSZmI3a3pwWjNhVlBIOWI1a28?oc=5"],["kr","MBC 뉴스","K리그1 울산, 김현석 감독과 계약 연장 안 해‥시즌 끝으로 결별","2026-11-12","https://news.google.com/rss/articles/CBMidkFVX3lxTE8wZWNLMWczQ2ZGYUxMU1Z4Ujd6eGRvMHVJTWlHclNaNzNMblB3dkhHQV91X1pBd2FKOXVfUnNfUk9zay1JempCbnl1VU5aUWx6YkNBd1Z3X1VvVVlyc3U3cGRXX3FKY0NiM1RwbTRWcnpFclJpNVHSAXZBVV95cUxOTkNTX3BVWVU5Yk5TS1NjenptM1U4UW91eWhIQ0hRYVZnOGZtWVM1bTlQRWlWamtxMGdTaTc0QmwzTUNjVlVxdkZ1amd3aTYzWGxQdE1nWHdETk53dHlxclN0Nm1BWUs4c3ZPeVl6OUtqQ0RBbC1n?oc=5"],["kr","머니투데이","선수단 급여 밀린 파주, 내년 K리그 참가도 불투명... 파주시에 지원 요청 \"부족한 급여 재원 중 일부라도\"","2026-11-13","https://news.google.com/rss/articles/CBMiakFVX3lxTE1hRXZZajRmTGdneWFWeGptakFXeEVFZ3pQa1Vkc0ZOTzV0dUU3aUlFcFFyN2hjbTN6NUhUejY0TGtvdl84SWpzVTVXQjc3SXJuWFZhb3I3a2NmQ0hGQmFSdUVKRi1vT3l5eWfSAW9BVV95cUxOU3ltX3BySGRWNFp6TEEzUHBVUHY1Wl9zZU5rMDBWVHN0elYyQ3BHVHVSYjlaTXhIUHRMaUhlX2hqUkhfSTFxV3hFS01wOE1qcC1tTlI3cFltdVJlS2dLdzdTcXkwYXU3dkJhYWJ4cWc?oc=5"],["kr","중앙일보","1511억 퍼붓고도 관중석 텅…‘혈세 카르텔’에 갇힌 K리그","2026-11-11","https://news.google.com/rss/articles/CBMiVkFVX3lxTE9LRUxHSnY5MFQxRFZsSkplSW9ENUJyckNZcTRHNDJCa1VvdzRnNG1Gc05uUERDYnVKel9sbUwwQXd5azdON3FXWWY1WVh1Tnc1Qmx2dWpn?oc=5"],["gl","BBC Sport","Spain test will reveal if Tuchel and England have learned World Cup lessons","2026-11-15","https://www.bbc.co.uk/sport/football/articles/cq2d9l3e313zo"],["gl","BBC Sport","Respect? Exposure? Why England's star names are going abroad","2026-11-15","https://www.bbc.co.uk/sport/football/articles/ckdd17mq2pvmo"],["gl","BBC Sport","'No racism in Spain' – De la Fuente message for Tuchel","2026-11-15","https://www.bbc.co.uk/sport/football/articles/c893r74ryy3qo"],["gl","BBC Sport","Bompastor's risks pay off as Chelsea go top of WSL","2026-11-15","https://www.bbc.co.uk/sport/football/articles/cmvg25w18q9qo"],["gl","BBC Sport","The 'manager's dream' who has put NI one game from history","2026-11-15","https://www.bbc.co.uk/sport/football/articles/c84gn2dl4zleo"],["gl","BBC Sport","White has 'exciting future' despite boos - Rice","2026-11-15","https://www.bbc.co.uk/sport/football/articles/cq0mdzrjn0j2o"],["gl","The New York Times","How Portugal’s send-off for Cristiano Ronaldo turned into a horror show","2026-11-15","https://news.google.com/rss/articles/CBMijwFBVV95cUxNSHpLRW5ZUHdLWUlyVklrT1FkQmpxR2JXNkx6THJDLWd0SWRhZm1hRDEwbDIzZ1o3US1SZEc5WjZvZzFfcWE1RUJNT1cxM21zenhCYXMxem4yMUd0UEdURGtmR2hnQVRhU2RWZGc2aExnX0RSckFLUEhmSzBhLUtYbUZuOWhGNVZNNy0tUWZVNA?oc=5"],["gl","Sky Sports","Chelsea 1-0 Man City: Sandy Baltimore's winner sees Blues leapfrog 10-player champions at top of the Women's Super League","2026-11-15","https://news.google.com/rss/articles/CBMi-wFBVV95cUxNamlrdVFRenIwS1NVWDlhTGstU0hlejdMdmtDX3F4MzRNRkg3RGlZSFZLTDh2U1lET0U3a0V1VS1CNE1fX2sxaHVGRF9pT2VGSVliWmVIQ0FuRTNVOHVOeXpQX0RaR0c0YTM4NlFPcFlodjQ1N0hNTndVWnhTZXptbGxYbmNHLWZoWTBKRXJ1Rl9uM2xyMU5BWjFTYmpHWnlOc3hwMU9uR0VpZEdmRG9TVVVOT0VHeUJMRmpCRDRZdkp0ZEJ0U3dGQ2p1QlExRXJMY3ZDMjAyUW5yc2dZSGtzUm1UZ3M4STEtZV8zRVZnaGhORmhuSEJLNW5Fcw?oc=5"],["gl","The New York Times","Football’s cold war against Russia is showing no sign of thawing","2026-11-15","https://news.google.com/rss/articles/CBMijAFBVV95cUxNN2hnN2NoMUY0eWUxUmRueVg2TGFYQzFBSXh3ZzkzV195QTJJSzZZSm5fblYxOVNNWVJINGJHNm5MQXpOaG1CQ0VlcHdtMzROQWNubktsRHczTUV3cXhLVHk0RV9UXzJkN2hwUU5MMlVYWndwaFVHLWZETjRrRUtaT0Y3VDUydGh5cmN4UA?oc=5"],["gl","The New York Times","Thomas Tuchel favours physicality for England – but there’s room for a creator like Alexander-Arnold","2026-11-15","https://news.google.com/rss/articles/CBMimwFBVV95cUxOWVdzLU9xTUJfRlF1bWRhbFNOdFhDWFN3bDhVSS1ZRWFpSTd5VkRsOVNsRkQ3ekstcHJ3WUttdjdkbkpnbjlyWUpfV2p0RFlNVlpWMkZ6WEN1c0o3VUsxNExQX3c1RGRWNk5rdlBaNHR1dklyWlUxb25KX2dXS0xRakJ2TDFYRndpZEc4RjJQV05vRmNzRk4yUXF3NA?oc=5"]];
-let F='all';
-function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function setF(f){F=f;['all','kr','gl'].forEach(k=>document.getElementById('b-'+k).className=(k===f?'on':''));render()}
-function render(){
- const rows=DATA.filter(d=>F==='all'||d[0]===F);
- document.getElementById('cnt').textContent=rows.length+'건 · 읽는 시간 약 '+Math.max(1,Math.round(rows.length*0.5))+'분';
- document.getElementById('list').innerHTML=rows.map(d=>'<div class="card"><span class="tag '+d[0]+'">'+(d[0]==='kr'?'국내':'해외')+'</span><a href="'+esc(d[4])+'" target="_blank" rel="noopener noreferrer">'+esc(d[2])+'</a><br><small>'+esc(d[1])+' · '+d[3]+'</small></div>').join('');
-}
-render();
+var BASE='2026-11-22', RANGE_DAYS=7, CSV_URL='data/articles.csv';
+var SHOWN=[], F='all';
+function parseCsv(t){
+  t=t.replace(/^\uFEFF/,'');var rows=[],row=[],f='',q=false,i,c;
+  for(i=0;i<t.length;i++){c=t[i];
+    if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;
+    else if(c===','){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);f='';if(row.length>1||row[0]!=='')rows.push(row);row=[]}
+    else f+=c}
+  if(f!==''||row.length){row.push(f);rows.push(row)}
+  return rows}
+function validDate(d){return /^\d{4}-\d{2}-\d{2}$/.test(d)&&new Date(d+'T00:00:00Z').toISOString().slice(0,10)===d}
+function dayDiff(a,b){return Math.round((new Date(a+'T00:00:00Z')-new Date(b+'T00:00:00Z'))/864e5)}
+function normT(s){return s.trim().replace(/\s+/g,' ').toLowerCase()}
+function processRows(table){
+  var data=table.slice(1).map(function(a,i){return {n:i+1,gubun:a[0]||'',src:a[1]||'',title:a[2]||'',date:a[3]||'',link:a[4]||'',syn:(a[5]||'').trim()}});
+  var excluded=[],cands=[];
+  data.forEach(function(r){
+    if(!r.title.trim()||!r.src.trim()||!r.date.trim()||!r.gubun.trim()||!r.link.trim()){excluded.push({r:r,why:'필수 칸 빠짐'});return}
+    if(!validDate(r.date)){excluded.push({r:r,why:'날짜 형식 틀림(YYYY-MM-DD 아님)'});return}
+    var d=dayDiff(BASE,r.date);
+    if(d<0){excluded.push({r:r,why:'범위 밖(기준일보다 미래)'});return}
+    if(d>RANGE_DAYS){excluded.push({r:r,why:'범위 밖(기준일 '+RANGE_DAYS+'일보다 오래됨)'});return}
+    if(r.gubun!=='국내'&&r.gubun!=='해외'){excluded.push({r:r,why:'구분이 국내/해외가 아님'});return}
+    if(!/^https:\/\//.test(r.link)){excluded.push({r:r,why:'링크가 https://로 시작하지 않음'});return}
+    cands.push(r)});
+  var best={},dups=[];
+  cands.forEach(function(r){
+    var k=normT(r.title),p=best[k];
+    if(!p){best[k]=r}
+    else if(r.date>p.date){dups.push({r:p,why:'중복(같은 제목, 더 최근 날짜인 '+r.n+'번을 남김)'});best[k]=r}
+    else{dups.push({r:r,why:'중복(같은 제목, 먼저 들어온 '+p.n+'번을 남김)'})}});
+  var shown=Object.keys(best).map(function(k){return best[k]});
+  shown.sort(function(a,b){
+    if(a.date!==b.date)return a.date<b.date?1:-1;
+    if(a.gubun!==b.gubun)return a.gubun==='국내'?-1:1;
+    return a.title.trim().localeCompare(b.title.trim(),'ko')});
+  return {total:data.length,excluded:excluded,dups:dups,shown:shown}}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function srcNames(shown){var s={};shown.forEach(function(r){s[r.syn==='Y'?'합성':r.src]=1});return Object.keys(s).join(', ')}
+function render(res){
+  SHOWN=res.shown;
+  var X=res.excluded.length,Y=res.dups.length,K=res.shown.length,N=res.total;
+  document.getElementById('sum').innerHTML='원천 '+N+'건 → 제외 '+X+' · 중복 '+Y+' → 표시 '+K+'건 · 기준일 '+BASE+' · 출처 '+esc(srcNames(res.shown))+' <br><small class="'+(N===X+Y+K?'ok':'ng')+'">검산: '+N+' = '+X+' + '+Y+' + '+K+(N===X+Y+K?' (맞음)':' (맞지 않음)')+'</small>';
+  document.getElementById('exs').textContent='제외된 항목 '+X+'건 (이유와 함께)';
+  document.getElementById('dps').textContent='중복된 항목 '+Y+'건 (이유와 함께)';
+  function li(o){return '<li><b>'+o.r.n+'번</b> · '+esc(o.r.title.trim()||'(제목 빈칸)')+' · 날짜 '+esc(o.r.date)+' → <b>'+esc(o.why)+'</b></li>'}
+  document.getElementById('exl').innerHTML=res.excluded.map(li).join('');
+  document.getElementById('dpl').innerHTML=res.dups.map(li).join('');
+  renderList()}
+function setF(f){F=f;['all','kr','gl'].forEach(function(k){document.getElementById('b-'+k).className=(k===f?'on':'')});renderList()}
+function renderList(){
+  var rows=SHOWN.filter(function(r){return F==='all'||(F==='kr'?r.gubun==='국내':r.gubun==='해외')});
+  document.getElementById('cnt').textContent=rows.length+'건 · 읽는 시간 약 '+Math.max(1,Math.round(rows.length*0.5))+'분';
+  document.getElementById('list').innerHTML=rows.map(function(r){
+    var t=r.syn==='Y'?esc(r.title.trim()):'<a href="'+esc(r.link)+'" target="_blank" rel="noopener noreferrer">'+esc(r.title.trim())+'</a>';
+    return '<div class="card"><span class="tag '+(r.gubun==='국내'?'kr':'gl')+'">'+r.gubun+'</span>'+(r.syn==='Y'?'<span class="tag sy">합성</span>':'')+t+'<br><small>'+esc(r.src)+' · '+esc(r.date)+'</small></div>'}).join('')}
+function csvText(rows){
+  function q(v){return '"'+String(v).replace(/"/g,'""')+'"'}
+  var lines=[['구분','언론사','제목','날짜','링크','합성']].concat(rows.map(function(r){return [r.gubun,r.src,r.title.trim(),r.date,r.link,r.syn]}));
+  return '\uFEFF'+lines.map(function(a){return a.map(q).join(',')}).join('\r\n')+'\r\n'}
+function downloadCsv(){
+  var blob=new Blob([csvText(SHOWN)],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='articles_shown_'+BASE+'.csv';document.body.appendChild(a);a.click();document.body.removeChild(a)}
+function compareShown(text){
+  var rows=parseCsv(text).slice(1);
+  var back=rows.map(function(a){return normT(a[2]||'')+'|'+(a[3]||'')});
+  var cur=SHOWN.map(function(r){return normT(r.title)+'|'+r.date});
+  var same=back.length===cur.length&&back.every(function(v,i){return v===cur[i]});
+  return {backCount:back.length,curCount:cur.length,same:same}}
+document.getElementById('re').addEventListener('change',function(e){
+  var f=e.target.files[0];if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(){var c=compareShown(rd.result);
+    document.getElementById('rechk').innerHTML=c.same?'<span class="ok">확인: 불러온 파일이 '+c.backCount+'건이고 화면과 같은 '+c.curCount+'건·같은 순서입니다.</span>':'<span class="ng">다릅니다: 불러온 파일 '+c.backCount+'건, 화면 '+c.curCount+'건 (순서나 내용이 다름)</span>'};
+  rd.readAsText(f,'utf-8')});
+if(typeof fetch==='function'&&location.protocol!=='about:'){
+  fetch(CSV_URL).then(function(r){if(!r.ok)throw new Error(r.status);return r.text()}).then(function(t){render(processRows(parseCsv(t)))}).catch(function(e){document.getElementById('sum').innerHTML='<span class="ng">데이터를 불러오지 못했습니다: '+esc(e.message)+'</span>'})}
 </script></body></html>
