@@ -5,7 +5,7 @@
 | "부산 마린스, 3경기 연속 무실점 수비 호평" 날짜 2026-11-18과 2026-11-20 (synthetic/5, 6) | 11-20 것만 표시, 11-18 것은 중복 | 같은 제목은 같은 기사이고, 날짜가 더 최근인 것을 남긴다 | 행 40, 41 | 중복 ; 표시 |
 | 제목이 빈칸, 날짜 2026-11-19 (synthetic/7) | 제외 | 제목은 필수 칸인데 비어 있다 | 행 42 | 제외 |
 | "대전 그린 유나이티드, 신인 공격수 영입 발표" 날짜 2026/11/3 (synthetic/8) | 제외 | 날짜 형식이 YYYY-MM-DD가 아니다 | 행 43 | 제외 |
-| "Estrella SC announce new stadium plan" 날짜 2027-01-01 (synthetic/9) | 제외 | 기준일(2026-11-22)보다 미래라서 범위 밖이다 | 행 44 | 제외 |
+| "Estrella SC announce new stadium plan" 날짜 2027-01-01 (synthetic/9) | 제외 | 기준일(2026-11-22)보다 미래라서 범위 밖이다 | 행 44 | 표시 |
 | 2026-11-22, 해외인 "AC Milan monitoring Man Utd's Fernandes - Sunday's gossip"와 "Argentina midfielder Paredes collapses during TV interview" | "AC Milan..."이 먼저, "Argentina..."가 나중에 표시 | 날짜와 구분이 같으면 3차 기준인 제목 알파벳순으로 정한다 | 행 24, 6 | 표시 ; 표시 / 순서 1,2 |
 | 합성 기사, 날짜 2026-11-15 (딱 7일 전) | 표시 | 규칙은 "7일을 넘어 지남"을 제외하는데, 딱 7일은 넘은 게 아니다 | "합성 기사"@2026-11-15 | 표시 |
 | "Why Arsenal are behind in race for Champions League spots" 날짜 2026-11-22 (기준일 당일) | 표시 | 기준일보다 미래도 아니고 7일 넘게 지나지도 않았다 | 행 1 | 표시 |
