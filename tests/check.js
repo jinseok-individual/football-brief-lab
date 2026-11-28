@@ -50,7 +50,4 @@ cases.split('\n').forEach(function (line) {
 });
 
 console.log('\n' + total + '줄 중 통과 ' + passed);
-if (process.env.CHECK_OUT) {                         // 자동 실행(Actions)이 결과 숫자를 읽어 가도록 파일로 남긴다
-  fs.writeFileSync(process.env.CHECK_OUT, JSON.stringify({ passed: passed, total: total }));
-}
 process.exit(passed === total ? 0 : 1);
