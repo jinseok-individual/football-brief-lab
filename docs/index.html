@@ -26,7 +26,6 @@ li{margin:3px 0;font-size:14px}
 <h3>나가는 길 · 다시 들어오는 길</h3>
 <p><button onclick="downloadCsv()">보이는 결과 CSV 내려받기</button> <label>내려받은 파일 다시 불러와 확인: <input type="file" id="re" accept=".csv,text/csv"></label></p>
 <p id="rechk"><small>파일은 이 브라우저 안에서만 읽고 어디로도 보내지 않습니다.</small></p>
-<p id="build"><small>자동 배포 정보를 불러오는 중…</small></p>
 <script src="process.js"></script>
 <script>
 var CSV_URL='data/articles.csv';
@@ -71,5 +70,4 @@ document.getElementById('re').addEventListener('change',function(e){
   rd.readAsText(f,'utf-8')});
 if(typeof fetch==='function'&&location.protocol!=='about:'){
   fetch(CSV_URL).then(function(r){if(!r.ok)throw new Error(r.status);return r.text()}).then(function(t){render(processRows(parseCsv(t)))}).catch(function(e){document.getElementById('sum').innerHTML='<span class="ng">데이터를 불러오지 못했습니다: '+esc(e.message)+'</span>'})}
-fetch('build-info.json').then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(b){document.getElementById('build').innerHTML='<small>마지막 갱신 '+esc(b.updated)+' · 검사 '+esc(b.passed)+'/'+esc(b.total)+' 통과 · 판 '+esc(b.sha)+' · 매일 아침 자동 갱신</small>'}).catch(function(){document.getElementById('build').innerHTML='<small>자동 배포 전이라 갱신 정보가 없습니다.</small>'});
 </script></body></html>
